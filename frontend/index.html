@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flora | цветы • растения • подарки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bouquet-mode">
+    <div class="container">
+        <header>
+            <div class="logo">flora</div>
+            <nav>
+                <button class="nav-btn active" data-category="bouquet">💐 Букеты</button>
+                <button class="nav-btn" data-category="plant">🌿 Для дома</button>
+                <button class="nav-btn" data-category="gift">🎁 Подарки</button>
+            </nav>
+            <div class="header-actions">
+                <div class="favorites-icon" id="favorites-btn">
+                    ♡ <span id="favorites-count">0</span>
+                </div>
+                <div class="cart-icon" id="cart-btn">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="breadcrumbs" id="breadcrumbs">Главная · Каталог</div>
+        <h1 class="page-title" id="page-title">Букеты</h1>
+        <p class="page-subtitle" id="page-subtitle">Свежие цветы с доставкой по всему городу</p>
+
+        <div class="catalog-grid" id="catalog-grid">
+            <div class="loader">Загрузка...</div>
+        </div>
+    </div>
+
+    <!-- Модалка корзины -->
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-modal-content">
+            <div class="cart-header">
+                <h3>Корзина</h3>
+                <span class="close-cart">&times;</span>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <p>Корзина пуста</p>
+            </div>
+            <div class="cart-total">Итого: ₽<span id="cart-total">0</span></div>
+            <button class="checkout-btn" id="checkout-btn">Оформить заказ</button>
+        </div>
+    </div>
+
+    <!-- Модалка избранного -->
+    <div class="favorites-modal" id="favorites-modal">
+        <div class="favorites-modal-content">
+            <div class="favorites-header">
+                <h3>Избранное</h3>
+                <span class="close-favorites">&times;</span>
+            </div>
+            <div class="favorites-items" id="favorites-items">
+                <p>Нет избранных товаров</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

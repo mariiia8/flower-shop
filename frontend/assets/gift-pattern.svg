@@ -1,0 +1,18 @@
+<svg width="400" height="400" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Коробка -->
+  <rect x="25" y="45" width="50" height="40" fill="#E8D5C4" rx="3"/>
+  <!-- Крышка -->
+  <rect x="22" y="40" width="56" height="10" fill="#D4BFA8" rx="2"/>
+  <!-- Лента горизонтальная -->
+  <rect x="25" y="55" width="50" height="6" fill="#D4A574"/>
+  <!-- Лента вертикальная -->
+  <rect x="46" y="45" width="8" height="40" fill="#D4A574"/>
+  <!-- Бантик -->
+  <path d="M46 40 Q38 32 42 38 Q46 42 50 40 Q54 42 58 38 Q62 32 54 40Z" fill="#C49464"/>
+  <circle cx="50" cy="40" r="4" fill="#B8885A"/>
+  <!-- Хвостики бантика -->
+  <path d="M42 40 L35 48" stroke="#C49464" stroke-width="2" fill="none"/>
+  <path d="M58 40 L65 48" stroke="#C49464" stroke-width="2" fill="none"/>
+  <!-- Блики -->
+  <rect x="28" y="48" width="8" height="3" fill="#F0E0D0" rx="1" opacity="0.5"/>
+</svg>
