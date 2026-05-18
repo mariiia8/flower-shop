@@ -57,9 +57,14 @@ async function loadData() {
 function updatePageUI() {
     const config = categoryConfig[currentCategory];
 
-    document.getElementById('page-title').textContent = config.title;
-    document.getElementById('page-subtitle').textContent = config.subtitle;
-    document.getElementById('breadcrumbs').textContent = config.breadcrumb;
+    const title = document.getElementById('page-title');
+    const subtitle = document.querySelector('.page-subtitle');
+    const breadcrumbs = document.querySelector('.breadcrumbs');
+
+    if (title) title.textContent = config.title;
+    if (subtitle) subtitle.textContent = config.subtitle;
+    if (breadcrumbs) breadcrumbs.textContent = config.breadcrumb;
+
     document.body.className = config.bodyClass;
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -254,6 +259,93 @@ window.changeQty = function(id, delta) {
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartUI();
 };
+
+// ===================== AI CHAT (ИСПРАВЛЕН - ПОРТ 5001) =====================
+const aiToggle = document.getElementById("ai-toggle");
+const aiBox = document.getElementById("ai-box");
+const aiClose = document.getElementById("ai-close");
+const aiSend = document.getElementById("ai-send");
+const aiInput = document.getElementById("ai-input");
+const aiMessages = document.getElementById("ai-messages");
+
+// открыть чат
+if (aiToggle) {
+    aiToggle.addEventListener("click", () => {
+        if (aiBox) aiBox.classList.add("open");
+    });
+}
+
+// закрыть чат
+if (aiClose) {
+    aiClose.addEventListener("click", () => {
+        if (aiBox) aiBox.classList.remove("open");
+    });
+}
+
+// отправка сообщения в AI
+async function sendAI() {
+    const text = aiInput.value.trim();
+    if (!text) return;
+
+    // Добавляем сообщение пользователя
+    const userMsg = document.createElement("div");
+    userMsg.className = "msg user";
+    userMsg.textContent = text;
+    aiMessages.appendChild(userMsg);
+    
+    aiInput.value = "";
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+
+    // Индикатор загрузки
+    const loadingMsg = document.createElement("div");
+    loadingMsg.className = "msg bot";
+    loadingMsg.textContent = "🌸 Думаю...";
+    aiMessages.appendChild(loadingMsg);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+
+    try {
+        // ✅ ИСПРАВЛЕНО: порт 5001 для AI сервера
+        const res = await fetch("http://127.0.0.1:5001/api/ai-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+        });
+
+        const data = await res.json();
+        
+        // Удаляем индикатор загрузки
+        loadingMsg.remove();
+        
+        // Добавляем ответ бота
+        const botMsg = document.createElement("div");
+        botMsg.className = "msg bot";
+        botMsg.textContent = data.reply || "🌸 Извините, не могу ответить";
+        aiMessages.appendChild(botMsg);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+
+    } catch (e) {
+        console.error("AI Error:", e);
+        loadingMsg.remove();
+        
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "msg bot";
+        errorMsg.textContent = "❌ Ошибка подключения к AI серверу. Убедитесь, что сервер запущен на порту 5001 🌸";
+        aiMessages.appendChild(errorMsg);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+}
+
+// Кнопка отправки
+if (aiSend) {
+    aiSend.addEventListener("click", sendAI);
+}
+
+// Отправка по Enter
+if (aiInput) {
+    aiInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendAI();
+    });
+}
 
 // ===================== EVENTS =====================
 document.addEventListener('DOMContentLoaded', () => {
