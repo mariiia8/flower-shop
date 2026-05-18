@@ -12,6 +12,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # =========================
+# 🌸 AI CHAT (если используешь)
+# =========================
+from ai import ask_flower_ai
+
+@app.route('/api/ai-chat', methods=['POST'])
+def ai_chat():
+    data = request.json
+    message = data.get('message', '')
+
+    reply = ask_flower_ai(message)
+
+    return jsonify({'reply': reply})
+
+
+# =========================
 # 📦 СОЗДАНИЕ БАЗЫ + ДАННЫЕ
 # =========================
 with app.app_context():
