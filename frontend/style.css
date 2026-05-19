@@ -10,9 +10,10 @@ body {
     line-height: 1.4;
     transition: background-color 0.5s ease, color 0.3s ease;
     min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* === ТЕМА 1: БУКЕТЫ (бежевый) === */
+/* === ТЕМЫ === */
 body.bouquet-mode {
     background-color: #F2E2CE;
 }
@@ -22,7 +23,6 @@ body.bouquet-mode .nav-btn.active {
     border-bottom-color: #C4A27A;
 }
 
-/* === ТЕМА 2: РАСТЕНИЯ (фисташковый) === */
 body.plant-mode {
     background-color: #C8E0C8;
 }
@@ -32,7 +32,6 @@ body.plant-mode .nav-btn.active {
     border-bottom-color: #5F8B5F;
 }
 
-/* === ТЕМА 3: ПОДАРКИ (сиреневый) === */
 body.gift-mode {
     background-color: #D8C8E8;
 }
@@ -102,6 +101,7 @@ nav {
     cursor: pointer;
     color: #1A1A1A;
     transition: opacity 0.2s;
+    position: relative;
 }
 
 .favorites-icon:hover,
@@ -118,7 +118,6 @@ nav {
     letter-spacing: 0.3px;
 }
 
-/* Page title */
 .page-title {
     font-size: 48px;
     font-weight: 400;
@@ -134,41 +133,50 @@ nav {
     color: #1A1A1A;
 }
 
-/* Pinterest-style grid */
+/* Catalog Grid */
 .catalog-grid {
-    column-count: 4;
-    column-gap: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
 }
 
 @media (max-width: 1200px) {
     .catalog-grid {
-        column-count: 3;
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 768px) {
     .catalog-grid {
-        column-count: 2;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
     .container {
-        padding: 20px;
+        padding: 16px;
     }
 }
 
-/* Flower card */
+@media (max-width: 480px) {
+    .catalog-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Flower Card */
 .flower-card {
     break-inside: avoid;
-    margin-bottom: 24px;
+    margin-bottom: 0;
     position: relative;
     border-radius: 20px;
     overflow: hidden;
     background: white;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    will-change: transform;
 }
 
 .flower-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .flower-image {
@@ -183,7 +191,7 @@ nav {
     object-fit: cover;
 }
 
-/* Favorite button */
+/* Favorite Button */
 .favorite-btn {
     position: absolute;
     top: 12px;
@@ -218,7 +226,7 @@ nav {
     content: "♡";
 }
 
-/* Flower info */
+/* Flower Info */
 .flower-info {
     padding: 16px;
 }
@@ -313,14 +321,6 @@ nav {
     overflow-y: auto;
 }
 
-.cart-item,
-.favorite-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 16px 0;
-    border-bottom: 1px solid #F0EAE4;
-}
-
 .cart-total {
     margin: 24px 0;
     font-size: 20px;
@@ -338,34 +338,38 @@ nav {
     cursor: pointer;
 }
 
-.remove-favorite-btn {
-    background: none;
-    border: none;
-    color: #ff3850;
-    cursor: pointer;
-    font-size: 14px;
-}
+/* Cart Item */
 .cart-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid #eee;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    transition: 0.2s;
 }
 
-.cart-left {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.cart-item:hover {
+    transform: translateY(-2px);
+}
+
+.cart-info {
+    flex: 1;
 }
 
 .cart-name {
-    font-weight: 500;
+    font-weight: 700;
+    font-size: 15px;
 }
 
 .cart-price {
-    font-size: 12px;
-    opacity: 0.6;
+    color: #ff4f8b;
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 13px;
 }
 
 .cart-controls {
@@ -374,82 +378,35 @@ nav {
     gap: 10px;
 }
 
-.qty-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-}
-
-.qty-btn:hover {
-    background: #f5f5f5;
-}
-
-.remove-btn {
+.cart-controls button {
+    width: 34px;
+    height: 34px;
     border: none;
-    background: transparent;
-    color: red;
-    font-size: 18px;
-    cursor: pointer;
-}
-.cart-bump {
-    animation: bump 0.3s ease;
-}
-
-@keyframes bump {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.25); }
-    100% { transform: scale(1); }
-}
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.cart-info {
-    flex: 1;
-}
-
-.cart-price {
-    font-size: 13px;
-    opacity: 0.6;
-}
-
-.cart-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f5f5f5;
-    padding: 6px 10px;
-    border-radius: 999px;
-}
-
-.qty-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: white;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    transition: 0.2s;
-}
-
-.qty-btn:hover {
-    transform: scale(1.15);
-    background: black;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff7eb6, #ff4f8b);
     color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(255, 79, 139, 0.3);
 }
 
-.qty {
-    min-width: 20px;
+.cart-controls button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 18px rgba(255, 79, 139, 0.4);
+}
+
+.cart-controls button:active {
+    transform: scale(0.95);
+}
+
+.cart-controls span {
+    min-width: 24px;
     text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
 }
 
 .remove-btn {
@@ -465,6 +422,16 @@ nav {
     color: red;
     transform: scale(1.2);
 }
+
+/* Favorite Item */
+.favorite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+}
+
 .remove-fav-btn {
     border: none;
     background: transparent;
@@ -479,118 +446,183 @@ nav {
     transform: scale(1.2);
 }
 
-.favorite-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid #eee;
-}
+/* Quick View */
 .quick-view {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .quick-view.open {
     display: flex;
+    opacity: 1;
 }
 
 .quick-view-content {
     background: white;
-    width: 360px;
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    animation: pop 0.25s ease;
+    width: 400px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 28px;
+    padding: 0;
+    position: relative;
+    animation: quickViewPop 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes quickViewPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .quick-view-content img {
     width: 100%;
-    border-radius: 14px;
+    height: 280px;
+    object-fit: cover;
+}
+
+.quick-view-info {
+    padding: 24px;
+}
+
+.quick-view-content h2 {
+    font-size: 24px;
     margin-bottom: 12px;
+    color: #1A1A1A;
+}
+
+.quick-view-content p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.quick-view-price {
+    font-size: 28px;
+    font-weight: 600;
+    color: #ff5f8f;
+    margin-bottom: 20px;
 }
 
 .close-quick {
     position: absolute;
-    margin-left: 140px;
-    font-size: 28px;
+    top: 16px;
+    right: 20px;
+    font-size: 32px;
     cursor: pointer;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.close-quick:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: rotate(90deg);
 }
 
 #qv-add {
-    margin-top: 12px;
     width: 100%;
-    padding: 10px;
+    padding: 16px;
     border: none;
-    border-radius: 30px;
-    background: black;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #ff8fb1, #ff5f8f);
     color: white;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-@keyframes pop {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-/* ===================== 3D CARDS ===================== */
-.flower-card {
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    will-change: transform;
+#qv-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 95, 143, 0.4);
 }
 
-.flower-card:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+#qv-add:active {
+    transform: translateY(0);
 }
 
-/* ===================== QUICK VIEW ===================== */
-.quick-view-content {
-    animation: zoomIn 0.25s ease;
+.quick-view-quantity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
-@keyframes zoomIn {
-    from { transform: scale(0.7); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+.quick-view-quantity label {
+    font-weight: 500;
+    color: #333;
 }
 
-/* ===================== HEART ===================== */
-.heart-pop {
-    animation: heartPop 0.3s ease;
+.qv-qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f5f5f5;
+    padding: 8px 16px;
+    border-radius: 30px;
 }
 
-@keyframes heartPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.4); }
-    100% { transform: scale(1); }
+.qv-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.2s;
 }
 
-/* ===================== BUTTON POP ===================== */
-.btn-pop {
-    animation: btnPop 0.3s ease;
+.qv-qty-btn:hover {
+    background: #ff5f8f;
+    color: white;
+    transform: scale(1.1);
 }
 
-@keyframes btnPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.9); }
-    100% { transform: scale(1); }
+.qv-qty-value {
+    min-width: 30px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
 }
 
-/* ===================== CART COUNTER ===================== */
-#cart-count.bump {
+/* Animations */
+.cart-bump {
     animation: bump 0.3s ease;
 }
 
 @keyframes bump {
     0% { transform: scale(1); }
-    40% { transform: scale(1.3); }
+    50% { transform: scale(1.25); }
     100% { transform: scale(1); }
 }
-/* ===================== AI CHAT - ИСПРАВЛЕННЫЙ ===================== */
+
+/* AI Chat Widget */
 #ai-widget {
     position: fixed;
     bottom: 25px;
@@ -599,7 +631,6 @@ nav {
     font-family: 'Inter', sans-serif;
 }
 
-/* Кнопка открытия чата */
 #ai-toggle {
     width: 65px;
     height: 65px;
@@ -621,28 +652,25 @@ nav {
     box-shadow: 0 10px 30px rgba(255, 95, 143, 0.5);
 }
 
-/* Окно чата */
 #ai-box {
     width: 360px;
     height: 540px;
     background: white;
     border-radius: 24px;
     overflow: hidden;
-    display: none;  /* По умолчанию скрыто */
+    display: none;
     flex-direction: column;
     position: absolute;
     bottom: 85px;
     right: 0;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     border: 1px solid #ffe0ea;
 }
 
-/* Класс для показа чата */
 #ai-box.open {
     display: flex;
 }
 
-/* Заголовок чата */
 .ai-header {
     background: linear-gradient(135deg, #ff8fb1, #ff5f8f);
     color: white;
@@ -678,7 +706,6 @@ nav {
     transform: scale(1.2);
 }
 
-/* Область сообщений */
 #ai-messages {
     flex: 1;
     padding: 18px;
@@ -690,7 +717,6 @@ nav {
     scroll-behavior: smooth;
 }
 
-/* Скроллбар */
 #ai-messages::-webkit-scrollbar {
     width: 8px;
 }
@@ -705,7 +731,6 @@ nav {
     border-radius: 10px;
 }
 
-/* Стили сообщений */
 .msg {
     max-width: 80%;
     padding: 12px 16px;
@@ -731,7 +756,6 @@ nav {
     border-bottom-left-radius: 5px;
 }
 
-/* Панель ввода */
 .ai-input {
     display: flex;
     padding: 14px;
@@ -776,5 +800,645 @@ nav {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Payment Modal */
+.payment-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.payment-modal.open {
+    display: flex;
+}
+
+.payment-box {
+    width: 500px;
+    max-width: 90%;
+    background: white;
+    border-radius: 32px;
+    padding: 32px;
+    position: relative;
+    animation: modalPop 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.close-payment {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    border: none;
+    background: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-payment:hover {
+    color: #ff5f8f;
+    background: #fff0f3;
+    transform: rotate(90deg);
+}
+
+.payment-box h2 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    color: #1A1A1A;
+    letter-spacing: -0.5px;
+}
+
+/* Payment Methods */
+.payment-methods {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.pay-method {
+    flex: 1;
+    padding: 16px 12px;
+    background: #f8f8f8;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+.pay-method:hover {
+    background: #fff0f3;
+    transform: translateY(-2px);
+}
+
+.pay-method.active {
+    background: linear-gradient(135deg, #fff0f5, #ffe8ef);
+    border-color: #ff5f8f;
+    box-shadow: 0 4px 12px rgba(255, 95, 143, 0.2);
+}
+
+.pay-icon {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.pay-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.pay-desc {
+    font-size: 10px;
+    color: #999;
+}
+
+/* Payment Forms */
+.payment-form {
+    display: none;
+    margin-bottom: 24px;
+}
+
+.payment-form.active {
+    display: block;
+    animation: formFadeIn 0.3s ease;
+}
+
+@keyframes formFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card Preview */
+.card-container {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.card-preview {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-chip {
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+.card-number {
+    font-size: 20px;
+    letter-spacing: 2px;
+    font-family: monospace;
+    margin-bottom: 20px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-expiry {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.card-brand {
+    font-size: 24px;
+}
+
+/* Card Inputs */
+.card-inputs input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1.5px solid #eee;
+    border-radius: 14px;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: #fafafa;
+}
+
+.card-inputs input:focus {
+    outline: none;
+    border-color: #ff5f8f;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 95, 143, 0.1);
+}
+
+.card-row {
+    display: flex;
+    gap: 12px;
+}
+
+.card-row input {
+    flex: 1;
+}
+
+/* Wallet Forms */
+.wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa, #f0f2f5);
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.wallet-icon {
+    font-size: 48px;
+    font-weight: 600;
+}
+
+.wallet-text h3 {
+    font-size: 18px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.wallet-text p {
+    font-size: 13px;
+    color: #666;
+}
+
+.apple-pay-btn,
+.google-pay-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apple-pay-btn {
+    background: #000;
+    color: white;
+}
+
+.apple-pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.google-pay-btn {
+    background: #4285f4;
+    color: white;
+}
+
+.google-pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
+}
+
+/* Pay Button */
+.pay-now-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ff7eb6, #ff5f8f);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pay-now-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 95, 143, 0.4);
+}
+
+.pay-amount {
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 30px;
+}
+.back-to-payment {
+    background: none;
+    border: none;
+    color: #ff5f8f;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.back-to-payment:hover {
+    background: #fff0f5;
+    border-radius: 40px;
+    transform: translateY(-2px);
+}
+
+/* Payment Status */
+#payment-status {
+    margin-top: 20px;
+    text-align: center;
+    min-height: 120px;
+}
+
+/* Flying Flower Animation */
+.flying-flower {
+    position: fixed;
+    z-index: 99999;
+    width: 34px;
+    height: 34px;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    filter: drop-shadow(0 6px 10px rgba(255, 95, 143, 0.35));
+}
+
+.cart-icon-bounce {
+    animation: cartPop 0.4s ease;
+}
+
+@keyframes cartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* Delivery Animations */
+@keyframes fadeInStep {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Notification Toast */
+.notification-toast {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+    font-weight: 500;
+    color: #333;
+    border-left: 4px solid #ff5f8f;
+}
+
+/* ===================== МОБИЛЬНОЕ МЕНЮ ===================== */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #1A1A1A;
+    transition: all 0.3s ease;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Только для мобильных устройств (до 768px) */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
+    /* Скрываем обычную навигацию, показываем мобильную */
+    nav {
+        display: none !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 32px;
+        z-index: 1000;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Открытое состояние меню */
+    nav.open {
+        display: flex !important;
+        animation: menuFadeIn 0.3s ease;
+    }
+    
+    @keyframes menuFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Стили кнопок в мобильном меню */
+    .nav-btn {
+        font-size: 20px;
+        padding: 12px 24px;
+        width: auto;
+        opacity: 0.7;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .nav-btn.active {
+        opacity: 1;
+        border-bottom: 2px solid;
+    }
+    
+    /* Адаптация хедера */
+    header {
+        margin-top: 0;
+        padding-left: 50px;
+        position: relative;
+    }
+    
+    .logo {
+        font-size: 22px;
+    }
+}
+
+/* Маленькие телефоны (до 480px) */
+@media (max-width: 480px) {
+    .mobile-menu-btn {
+        top: 12px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+    
+    header {
+        padding-left: 45px;
+    }
+    
+    .nav-btn {
+        font-size: 18px;
+        padding: 10px 20px;
+    }
+}
+/* ===================== МОБИЛЬНАЯ ОПТИМИЗАЦИЯ ПЛАТЕЖНОГО ОКНА ===================== */
+@media (max-width: 768px) {
+    .payment-modal {
+        align-items: flex-end;
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .payment-box {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 28px 28px 0 0;
+        padding: 24px 20px;
+        animation: slideUp 0.3s ease;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    
+    /* Кнопка закрытия всегда видна */
+    .close-payment {
+        top: 16px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        background: rgba(0, 0, 0, 0.05);
+        color: #666;
+        z-index: 10;
+    }
+    
+    .close-payment:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #ff5f8f;
+    }
+    
+    .payment-methods {
+        gap: 8px;
+    }
+    
+    .pay-method {
+        padding: 12px 8px;
+    }
+    
+    .pay-icon {
+        font-size: 24px;
+    }
+    
+    .pay-name {
+        font-size: 12px;
+    }
+    
+    .pay-desc {
+        font-size: 9px;
+    }
+    
+    .card-container {
+        padding: 16px;
+    }
+    
+    .card-preview {
+        min-height: 140px;
+    }
+    
+    .card-number {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    
+    .card-chip {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+    
+    .card-inputs input {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .pay-now-btn {
+        padding: 14px;
+        font-size: 15px;
+    }
+    
+    .pay-amount {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-box {
+        padding: 20px 16px;
+    }
+    
+    .payment-box h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .payment-methods {
+        flex-direction: row;
+        gap: 6px;
+    }
+    
+    .pay-method {
+        padding: 10px 6px;
+    }
+    
+    .pay-icon {
+        font-size: 20px;
+    }
+    
+    .pay-name {
+        font-size: 11px;
+    }
+    
+    .card-preview {
+        min-height: 120px;
+    }
+    
+    .card-number {
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+    
+    .close-payment {
+        top: 12px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
     }
 }
