@@ -2,13 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#ff5f8f">
     <title>Flora | цветы • растения • подарки</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="bouquet-mode">
 
+<button class="mobile-menu-btn">☰</button>
 <div class="container">
 
     <header>
@@ -81,42 +83,131 @@
 <div id="quick-view" class="quick-view">
     <div class="quick-view-content">
         <span class="close-quick">&times;</span>
-
         <img id="qv-img" src="" alt="">
-        <h2 id="qv-name"></h2>
-        <p id="qv-desc"></p>
-        <div id="qv-price"></div>
+        <div class="quick-view-info">
+            <h2 id="qv-name"></h2>
+            <p id="qv-desc"></p>
+            <div class="quick-view-price" id="qv-price"></div>
+            
+            <div class="quick-view-quantity">
+                <label>Количество:</label>
+                <div class="qv-qty-control">
+                    <button class="qv-qty-btn" id="qv-qty-minus">-</button>
+                    <span class="qv-qty-value" id="qv-qty-value">1</span>
+                    <button class="qv-qty-btn" id="qv-qty-plus">+</button>
+                </div>
+            </div>
+            
+            <button id="qv-add">В корзину</button>
+        </div>
+    </div>
+</div>
 
-        <button id="qv-add">В корзину</button>
+<!-- ================= PAYMENT MODAL ================= -->
+<div id="payment-modal" class="payment-modal">
+    <div class="payment-box">
+        <button class="close-payment">✕</button>
+        
+        <h2>💐 Оплата заказа</h2>
+        
+        <!-- Способы оплаты -->
+        <div class="payment-methods">
+            <button class="pay-method active" data-method="card">
+                <div class="pay-icon">💳</div>
+                <div class="pay-name">Карта</div>
+                <div class="pay-desc">Visa · Mastercard · МИР</div>
+            </button>
+            
+            <button class="pay-method" data-method="apple">
+                <div class="pay-icon">🍏</div>
+                <div class="pay-name">Apple Pay</div>
+                <div class="pay-desc">Мгновенная оплата</div>
+            </button>
+            
+            <button class="pay-method" data-method="google">
+                <div class="pay-icon">G Pay</div>
+                <div class="pay-name">Google Pay</div>
+                <div class="pay-desc">Безопасно и быстро</div>
+            </button>
+        </div>
+        
+        <!-- Форма для карты (показывается по умолчанию) -->
+        <div id="card-form" class="payment-form active">
+            <div class="card-container">
+                <div class="card-preview">
+                    <div class="card-chip">💳</div>
+                    <div class="card-number" id="display-card-number">**** **** **** ****</div>
+                    <div class="card-footer">
+                        <span class="card-expiry" id="display-expiry">**/**</span>
+                        <span class="card-brand" id="card-brand">💳</span>
+                    </div>
+                </div>
+                
+                <div class="card-inputs">
+                    <input type="text" id="card-number" placeholder="Номер карты" maxlength="19" autocomplete="off">
+                    <div class="card-row">
+                        <input type="text" id="card-expiry" placeholder="ММ/ГГ" maxlength="5">
+                        <input type="text" id="card-cvv" placeholder="CVV" maxlength="3">
+                    </div>
+                    <input type="text" id="card-name" placeholder="Имя владельца">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Форма для Apple Pay (скрыта) -->
+        <div id="apple-form" class="payment-form">
+            <div class="wallet-info">
+                <div class="wallet-icon">🍏</div>
+                <div class="wallet-text">
+                    <h3>Apple Pay</h3>
+                    <p>Нажмите кнопку ниже для оплаты</p>
+                </div>
+            </div>
+            <button class="apple-pay-btn">🍏 Apple Pay</button>
+        </div>
+        
+        <!-- Форма для Google Pay (скрыта) -->
+        <div id="google-form" class="payment-form">
+            <div class="wallet-info">
+                <div class="wallet-icon">G Pay</div>
+                <div class="wallet-text">
+                    <h3>Google Pay</h3>
+                    <p>Оплата в один клик</p>
+                </div>
+            </div>
+            <button class="google-pay-btn">G Pay</button>
+        </div>
+        
+        <button id="pay-btn" class="pay-now-btn">
+            <span>Оплатить</span>
+            <span class="pay-amount" id="pay-amount">0 ₽</span>
+        </button>
+        
+        <div id="payment-status"></div>
     </div>
 </div>
 
 <!-- ================= AI CHAT ================= -->
 <div id="ai-widget">
-    <button id="ai-toggle">💬</button>
+    <button id="ai-toggle">🌸</button>
 
     <div id="ai-box">
         <div class="ai-header">
             <div class="ai-title">
                 🌸 Цветочный помощник
             </div>
-
             <span id="ai-close">×</span>
         </div>
 
-        <div id="ai-messages"></div>
+        <div id="ai-messages">
+            <div class="msg bot">Здравствуйте! Чем могу помочь? 🌸</div>
+        </div>
 
         <div class="ai-input">
-            <input
-                id="ai-input"
-                type="text"
-                placeholder="Спроси про цветы..."
-            >
-
+            <input id="ai-input" type="text" placeholder="Спросите о цветах...">
             <button id="ai-send">➤</button>
         </div>
     </div>
-</div>
 </div>
 
 <script src="script.js"></script>
