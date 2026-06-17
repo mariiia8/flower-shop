@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from .models import db, Flower, Order, Favorite
 import json
@@ -220,10 +220,6 @@ with app.app_context():
 # 🌸 API
 # =========================
 
-@app.route('/')
-def home():
-    return 'Flora API работает 🌸'
-
 @app.route('/api/flowers', methods=['GET'])
 def get_flowers():
     category = request.args.get('category')
@@ -291,6 +287,18 @@ def create_order():
     db.session.commit()
 
     return jsonify({'status': 'ok', 'order_id': order.id})
+
+# =========================
+# 🌐 ФРОНТЕНД (СТАТИКА)
+# =========================
+
+@app.route('/')
+def serve_frontend():
+    return send_from_directory('../frontend', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory('../frontend', path)
 
 # =========================
 
