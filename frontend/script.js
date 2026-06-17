@@ -1,4 +1,4 @@
-const API = 'http://localhost:5000/api';
+const API = '/api';
 
 let flowers = [];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -409,7 +409,7 @@ async function sendAI() {
     aiMessages.scrollTop = aiMessages.scrollHeight;
 
     try {
-        const res = await fetch("http://127.0.0.1:5001/api/ai-chat", {
+        const res = await fetch("/api/ai-chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text })
@@ -426,7 +426,7 @@ async function sendAI() {
         loadingMsg.remove();
         const errorMsg = document.createElement("div");
         errorMsg.className = "msg bot";
-        errorMsg.textContent = "❌ Ошибка подключения к AI серверу. Убедитесь, что сервер запущен на порту 5001 🌸";
+        errorMsg.textContent = "❌ Ошибка подключения к AI серверу";
         aiMessages.appendChild(errorMsg);
         aiMessages.scrollTop = aiMessages.scrollHeight;
     }
