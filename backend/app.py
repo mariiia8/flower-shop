@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from models import db, Flower, Order, Favorite
+from .models import db, Flower, Order, Favorite
 import json
 import os
 import sys
@@ -17,7 +17,7 @@ db.init_app(app)
 # 🌸 AI CHAT (с обработкой ошибки)
 # =========================
 try:
-    from ai import ask_flower_ai
+    from .ai import ask_flower_ai
     AI_AVAILABLE = True
     print("✅ AI модуль загружен")
 except ImportError:
