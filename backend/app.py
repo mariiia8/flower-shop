@@ -2,12 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, Flower, Order, Favorite
 import json
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Используем порт от Railway
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -205,12 +203,12 @@ with app.app_context():
                 image_url="https://i.pinimg.com/736x/d1/ee/1b/d1ee1bcdf2aee8c30588863d650d5ffa.jpg"
             ),
             Flower(
-                name="Мягкая игрушка",
-                price=29,
-                category="gift",
-                description="Мягкий и идеальный подарок",
-                image_url="https://i.pinimg.com/736x/a9/1f/a8/a91fa8562684b8c10b6313f718ade476.jpg"
-            ),
+    name="Мягкая игрушка",
+    price=29,
+    category="gift",
+    description="Мягкий и идеальный подарок",
+    image_url="https://i.pinimg.com/736x/a9/1f/a8/a91fa8562684b8c10b6313f718ade476.jpg"
+),
         ]
 
         db.session.add_all(flowers_data)
@@ -296,6 +294,6 @@ def create_order():
 # =========================
 
 if __name__ == '__main__':
-    # ГЛАВНОЕ ИЗМЕНЕНИЕ ДЛЯ RAILWAY:
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(debug=True, port=5000)
+
+    

@@ -14,7 +14,7 @@ CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://loc
 
 # ===================== OLLAMA SETTINGS =====================
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "phi3:mini"  # Можно заменить на другую модель
+MODEL_NAME = "phi3:mini" # Можно заменить на другую модель
 
 # ===================== AI FUNCTION =====================
 def ask_flower_ai(user_message):
@@ -45,12 +45,12 @@ def ask_flower_ai(user_message):
                 "prompt": prompt,
                 "stream": False,
                 "options": {
-                    "temperature": 0.3,
-                    "num_predict": 150,
+                    "temperature": 0.3,  # НИЖЕ = более точные ответы
+                    "num_predict": 150,   # Короткие ответы
                     "top_p": 0.85,
                     "top_k": 30,
-                    "repeat_penalty": 1.15,
-                    "stop": ["<|user|>", "<|assistant|>", "\n\n\n"]
+                    "repeat_penalty": 1.15,  # Убирает повторы
+                    "stop": ["<|user|>", "<|assistant|>", "\n\n\n"]  # Стоп-слова
                 }
             },
             timeout=60
@@ -58,8 +58,10 @@ def ask_flower_ai(user_message):
         
         if response.status_code == 200:
             reply = response.json().get("response", "")
+            # Чистим ответ
             reply = reply.replace("Ответ:", "").replace("<|assistant|>", "").strip()
             
+            # Обрезаем слишком длинные ответы
             if len(reply) > 300:
                 reply = reply[:300] + "..."
             
@@ -70,7 +72,6 @@ def ask_flower_ai(user_message):
     except Exception as e:
         print(f"❌ Ошибка: {e}")
         return "🌸 Извините, произошла ошибка"
-
 # ===================== ROUTES =====================
 @app.route("/api/ai-chat", methods=["POST"])
 def ai_chat():
@@ -102,6 +103,8 @@ def ai_chat():
 
 @app.route("/api/test", methods=["GET"])
 def test():
+    """Проверка статуса сервера и Ollama"""
+    # Проверяем подключение к Ollama
     ollama_status = "unknown"
     try:
         test_response = requests.post(
@@ -123,6 +126,7 @@ def test():
 
 @app.route("/api/check-models", methods=["GET"])
 def check_models():
+    """Проверяет доступные модели в Ollama"""
     try:
         response = requests.get("http://localhost:11434/api/tags")
         if response.status_code == 200:
@@ -156,6 +160,7 @@ if __name__ == "__main__":
     print(f"🔗 Ollama URL: {OLLAMA_URL}")
     print("="*50 + "\n")
     
+    # Проверяем, запущен ли Ollama перед стартом
     try:
         test_ollama = requests.get("http://localhost:11434/api/tags", timeout=2)
         print("✅ Ollama обнаружен и работает!")
@@ -164,6 +169,9 @@ if __name__ == "__main__":
         print("   Откройте новый терминал и выполните: ollama serve")
         print("   Затем перезапустите этот сервер\n")
     
-    # 🔥 ГЛАВНОЕ ИЗМЕНЕНИЕ ДЛЯ RAILWAY:
-    port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(
+        host="0.0.0.0",
+        port=5001,
+        debug=True
+    )
+
