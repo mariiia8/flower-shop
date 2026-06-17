@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from .models import db, Flower, Order, Favorite
+from models import db, Flower, Order, Favorite
 import json
 import os
+import sys
 
 app = Flask(__name__)
 CORS(app)
@@ -13,12 +14,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # =========================
-# 🌸 AI CHAT 
+# 🌸 AI CHAT (с обработкой ошибки)
 # =========================
-from ai import ask_flower_ai
+try:
+    from ai import ask_flower_ai
+    AI_AVAILABLE = True
+    print("✅ AI модуль загружен")
+except ImportError:
+    AI_AVAILABLE = False
+    print("⚠️ AI модуль не найден, AI-чат будет недоступен")
+    
+    def ask_flower_ai(message):
+        return "🌸 AI помощник временно недоступен. Пожалуйста, попробуйте позже."
 
 @app.route('/api/ai-chat', methods=['POST'])
 def ai_chat():
+    if not AI_AVAILABLE:
+        return jsonify({'reply': '🌸 AI помощник временно недоступен'})
+    
     data = request.json
     message = data.get('message', '')
 
