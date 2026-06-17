@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # =========================
-# 🌸 AI CHAT (если используешь)
+# 🌸 AI CHAT 
 # =========================
 from ai import ask_flower_ai
 
@@ -295,3 +295,5 @@ def create_order():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+    
