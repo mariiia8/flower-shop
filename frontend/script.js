@@ -441,17 +441,24 @@ const closePayment = document.querySelector(".close-payment");
 const payBtn = document.getElementById("pay-btn");
 const paymentStatus = document.getElementById("payment-status");
 
+// Получение полей адреса
+const deliveryCity = document.getElementById("delivery-city");
+const deliveryStreet = document.getElementById("delivery-street");
+const deliveryComment = document.getElementById("delivery-comment");
+
 function updatePayAmount() {
     const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
     const amountSpan = document.querySelector(".pay-amount");
     if (amountSpan) amountSpan.textContent = `${total} ₽`;
 }
 
+// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА (БЕЗ ПРОВЕРКИ АДРЕСА) =====
 document.getElementById("checkout-btn")?.addEventListener("click", () => {
     if (!cart.length) {
         alert('Корзина пуста 🌸');
         return;
     }
+    
     updatePayAmount();
     paymentModal.classList.add("open");
 });
@@ -512,6 +519,14 @@ document.addEventListener("keydown", (e) => {
 
 if (payBtn) {
     payBtn.addEventListener("click", () => {
+        // Сохраняем адрес при нажатии "Оплатить"
+        const addressData = {
+            city: deliveryCity?.value.trim() || 'Не указан',
+            street: deliveryStreet?.value.trim() || 'Не указана',
+            comment: deliveryComment?.value.trim() || ''
+        };
+        localStorage.setItem('deliveryAddress', JSON.stringify(addressData));
+        
         paymentStatus.innerHTML = `<div style="animation: fadeInStep 0.5s ease;"><div style="font-size: 48px;">⏳</div><div style="font-size: 16px; font-weight: 500;">Обработка платежа...</div></div>`;
         setTimeout(() => { startFakeDelivery(); }, 1500);
     });
@@ -519,14 +534,19 @@ if (payBtn) {
 
 // ===================== DELIVERY SIMULATION =====================
 function startFakeDelivery() {
+    // Получаем адрес из localStorage
+    const addressData = JSON.parse(localStorage.getItem('deliveryAddress') || '{}');
+    const addressText = `${addressData.city || ''}, ${addressData.street || ''}`.trim() || 'ваш адрес';
+    const commentText = addressData.comment ? ` (${addressData.comment})` : '';
+
     const steps = [
         { icon: "💳", text: "Оплата подтверждена" },
         { icon: "🌸", text: "Флорист собирает букет" },
         { icon: "🎀", text: "Упаковка подарка" },
-        { icon: "📦", text: "Передаём курьеру" },
-        { icon: "🚚", text: "Курьер в пути" },
+        { icon: "📦", text: `Передаём курьеру для доставки по адресу: ${addressText}${commentText}` },
+        { icon: "🚚", text: `Курьер едет к вам (${addressText})` },
         { icon: "📍", text: "Курьер рядом с вами" },
-        { icon: "🎉", text: "Доставлено! Спасибо за заказ!" }
+        { icon: "🎉", text: `Доставлено по адресу: ${addressText}! Спасибо за заказ!` }
     ];
     
     let stepIndex = 0;
@@ -559,6 +579,7 @@ function startFakeDelivery() {
                 paymentModal.classList.remove("open");
                 cart = [];
                 localStorage.removeItem("cart");
+                localStorage.removeItem("deliveryAddress");
                 updateCartUI();
                 showThankYouModal();
                 backBtn.remove();

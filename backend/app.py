@@ -15,7 +15,7 @@ db.init_app(app)
 # =========================
 # 🌸 AI CHAT 
 # =========================
-from .ai import ask_flower_ai
+from ai import ask_flower_ai
 
 @app.route('/api/ai-chat', methods=['POST'])
 def ai_chat():
