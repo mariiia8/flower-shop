@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import db, Flower, Order, Favorite
+from .models import db, Flower, Order, Favorite
 import json
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -14,7 +15,7 @@ db.init_app(app)
 # =========================
 # 🌸 AI CHAT 
 # =========================
-from ai import ask_flower_ai
+from .ai import ask_flower_ai
 
 @app.route('/api/ai-chat', methods=['POST'])
 def ai_chat():
@@ -203,12 +204,12 @@ with app.app_context():
                 image_url="https://i.pinimg.com/736x/d1/ee/1b/d1ee1bcdf2aee8c30588863d650d5ffa.jpg"
             ),
             Flower(
-    name="Мягкая игрушка",
-    price=29,
-    category="gift",
-    description="Мягкий и идеальный подарок",
-    image_url="https://i.pinimg.com/736x/a9/1f/a8/a91fa8562684b8c10b6313f718ade476.jpg"
-),
+                name="Мягкая игрушка",
+                price=29,
+                category="gift",
+                description="Мягкий и идеальный подарок",
+                image_url="https://i.pinimg.com/736x/a9/1f/a8/a91fa8562684b8c10b6313f718ade476.jpg"
+            ),
         ]
 
         db.session.add_all(flowers_data)
@@ -294,6 +295,5 @@ def create_order():
 # =========================
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
-    
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
