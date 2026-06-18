@@ -1,29 +1,24 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
+import random
 
-# =====================
-# LOAD ENV
-# =====================
 load_dotenv()
 
-# =====================
-# GROQ CLIENT
-# =====================
 client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL_NAME = "llama-3.1-8b-instant"  # Быстрая модель, можно заменить на "llama-3.3-70b-versatile"
+MODEL_NAME = "llama-3.1-8b-instant"
 
 # =====================
-# БАЗА ЗНАНИЙ
+# БАЗА ЗНАНИЙ (без мата)
 # =====================
 KNOWLEDGE_BASE = {
-    "как поливать розы": "Поливайте розы 1-2 раза в неделю под корень, утром или вечером. Не лейте на листья 🌹",
-    "как поливать ромашки": "Поливайте ромашки 2-3 раза в неделю, когда верхний слой почвы подсохнет. Лейте под корень 🌼",
-    "как ухаживать за фикусом": "Фикус поливайте раз в 5-7 дней, опрыскивайте листья, ставьте на светлое место без сквозняков 🌿",
+    "как поливать розы": "Розы поливают 1-2 раза в неделю под корень, утром или вечером. Не лейте на листья, чтобы избежать грибка 🌹",
+    "как поливать ромашки": "Ромашки поливают 2-3 раза в неделю, когда верхний слой почвы подсохнет. Лейте под корень 🌼",
+    "как ухаживать за фикусом": "Фикус поливают раз в 5-7 дней, опрыскивают листья, ставят на светлое место без сквозняков 🌿",
     "какие цветы дарят на 8 марта": "На 8 марта дарят тюльпаны, мимозу, розы и ирисы. Это символ весны 🌷",
     "как долго стоят срезанные тюльпаны": "Срезанные тюльпаны стоят 5-7 дней в вазе с холодной водой. Меняйте воду каждый день 💐",
     "чем подкормить розы": "Подкармливайте розы весной и летом удобрениями для цветущих растений раз в 2 недели 🌹",
@@ -38,51 +33,119 @@ KNOWLEDGE_BASE = {
 }
 
 # =====================
-# AI FUNCTION
+# ВЕЖЛИВЫЕ ФРАЗЫ
 # =====================
-def ask_flower_ai(user_message):
-    print(f"\n🤔 Вопрос: {user_message}")
-    user_lower = user_message.lower()
+GREETINGS = [
+    "Здравствуйте! Я рад помочь вам с вопросами о цветах и растениях 🌸",
+    "Добрый день! Чем могу быть полезен? 🌸",
+    "Приветствую! Спрашивайте, я здесь, чтобы помочь 🌸"
+]
+
+APOLOGIES = [
+    "Ничего страшного! Я всегда рад помочь 🌸",
+    "Всё хорошо! Задавайте вопросы, я с удовольствием отвечу 🌸",
+    "Не переживайте! Я здесь, чтобы помочь вам с цветами 🌸"
+]
+
+THANKS = [
+    "Пожалуйста! Всегда рад помочь 🌸",
+    "Обращайтесь ещё! 🌸",
+    "Спасибо за обращение! 🌸"
+]
+
+WHO_AM_I = [
+    "Я — Flora AI, виртуальный консультант цветочного магазина. Помогаю с вопросами о цветах, растениях и подарках 🌸",
+    "Я — Flora, ваш помощник в мире цветов и растений. Спрашивайте! 🌸"
+]
+
+NOT_FOUND = [
+    "Прошу прощения, но я не знаю ответа на этот вопрос. Возможно, вы спрашиваете о чём-то, что не связано с цветами? 🌸",
+    "К сожалению, я не могу ответить на этот вопрос, так как он не относится к моей специализации. Давайте вернёмся к цветам! 🌸",
+    "Мне жаль, но я не нашёл подходящего ответа. Может быть, вы хотите узнать что-то о цветах? 🌸"
+]
+
+# =====================
+# ПОИСК ОТВЕТА
+# =====================
+def get_answer(user_lower):
+    for question, answer in KNOWLEDGE_BASE.items():
+        if question in user_lower:
+            return answer
     
-    # Проверка на приветствия
-    greetings = {'привет', 'здравствуйте', 'добрый день', 'как дела', 'что делаешь', 'приветик'}
-    if any(g in user_lower for g in greetings):
-        return "Здравствуйте! Я помогаю с вопросами о цветах и растениях. Спросите меня, как ухаживать за розами или что подарить на 8 марта 🌸"
-    
-    # Поиск в базе знаний
-    stop_words = {'как', 'что', 'зачем', 'почему', 'где', 'когда', 'чем', 'для', 'по', 'с', 'на', 'в', 'у', 'о', 'и', 'а', 'но'}
-    user_words = set(word for word in user_lower.split() if word not in stop_words)
-    
+    user_words = set(user_lower.split())
     best_match = None
     best_score = 0
-
+    
     for question, answer in KNOWLEDGE_BASE.items():
         q_words = set(question.split())
-        common_words = user_words & q_words
-        score = len(common_words) / len(q_words) if q_words else 0
-        
-        if score > best_score and score > 0.3:
+        common = user_words & q_words
+        score = len(common) / len(q_words) if q_words else 0
+        if score > best_score:
             best_score = score
             best_match = answer
-
-    if best_match:
-        print(f"📖 Найден ответ в базе (точность: {best_score:.2f})")
+    
+    if best_match and best_score > 0.3:
         return best_match
+    
+    return None
 
-    # Если не нашли — используем Groq
-    print("ℹ️ Вопрос не найден в базе, используем Groq")
+# =====================
+# ГЛАВНАЯ ФУНКЦИЯ
+# =====================
+def ask_flower_ai(user_message):
+    user_lower = user_message.lower()
+    print(f"\n🤔 Вопрос: {user_message}")
+    
+    # Проверка на ключевые слова
+    if any(word in user_lower for word in ['извини', 'прости', 'сорян', 'извините']):
+        return random.choice(APOLOGIES)
+    
+    if any(word in user_lower for word in ['привет', 'здравствуйте', 'добрый день', 'здарова', 'ку']):
+        return random.choice(GREETINGS)
+    
+    if any(word in user_lower for word in ['спасибо', 'благодарю', 'мерси']):
+        return random.choice(THANKS)
+    
+    if 'кто ты' in user_lower:
+        return random.choice(WHO_AM_I)
+    
+    if 'как дела' in user_lower:
+        return "У меня всё отлично! Спасибо, что спросили. Чем могу помочь вам? 🌸"
+    
+    # Поиск в базе
+    answer = get_answer(user_lower)
+    if answer:
+        return answer
+    
+    # Если не нашли — Groq
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "system", "content": "Ты консультант цветочного магазина. Отвечай кратко, максимум 2-3 предложения, только на русском языке."},
-                {"role": "user", "content": user_message}
+                {
+                    "role": "system", 
+                    "content": """
+Ты — Flora AI, вежливый консультант цветочного магазина.
+Отвечай коротко, максимум 2-3 предложения, только на русском языке.
+Если вопрос не о цветах, растениях или подарках — вежливо откажись.
+Никакого мата. Только вежливое общение.
+"""
+                },
+                {
+                    "role": "user", 
+                    "content": user_message
+                }
             ],
-            temperature=0.3,
-            max_tokens=60
+            temperature=0.5,
+            max_tokens=80
         )
         reply = response.choices[0].message.content.strip()
-        return reply if reply else "🌸 Пожалуйста, задайте вопрос о цветах"
+        
+        if len(reply.split()) > 25:
+            reply = ' '.join(reply.split()[:25]) + '...'
+        
+        return reply if reply else random.choice(NOT_FOUND)
+        
     except Exception as e:
         print(f"❌ Groq Error: {e}")
-        return "🌸 AI помощник временно недоступен"
+        return random.choice(NOT_FOUND)

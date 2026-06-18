@@ -1,2 +1,5 @@
 .vercel
 .env*
+venv/
+backend/venv/
+chroma_db/
