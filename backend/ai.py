@@ -1,14 +1,10 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
-from turboquant_db import TurboQuantDB
-from sentence_transformers import SentenceTransformer
+import random
 
 load_dotenv()
 
-# =====================
-# GROQ CLIENT
-# =====================
 client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
     base_url="https://api.groq.com/openai/v1"
@@ -16,9 +12,6 @@ client = OpenAI(
 
 MODEL_NAME = "llama-3.1-8b-instant"
 
-# =====================
-# БАЗА ЗНАНИЙ
-# =====================
 KNOWLEDGE_BASE = {
     "как поливать розы": "Розы поливают 1-2 раза в неделю под корень, утром или вечером 🌹",
     "как поливать ромашки": "Ромашки поливают 2-3 раза в неделю, когда подсохнет верхний слой 🌼",
@@ -30,59 +23,48 @@ KNOWLEDGE_BASE = {
     "какие растения очищают воздух": "Хлорофитум, сансевиерия, спатифиллум, алоэ 🌿",
 }
 
-# =====================
-# ИНИЦИАЛИЗАЦИЯ TURBOQUANT-DB
-# =====================
-print("🔄 Загрузка модели эмбеддингов...")
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
-print("✅ Модель загружена")
+GREETINGS = [
+    "Здравствуйте! Чем могу помочь? 🌸",
+    "Привет! Я — Flora AI, ваш помощник 🌸",
+]
 
-# Создаём базу данных
-db = TurboQuantDB(
-    model=embedder,           # модель для векторизации
-    distance="cosine",        # метрика сходства
-    quant_type="float16"      # сжатие в 2 раза (экономия памяти)
-)
-
-# Добавляем вопросы в базу
-questions = list(KNOWLEDGE_BASE.keys())
-answers = list(KNOWLEDGE_BASE.values())
-
-print(f"🔄 Добавление {len(questions)} вопросов в базу...")
-db.add_texts(questions, metadatas=[{"answer": a} for a in answers])
-print("✅ База знаний готова!")
-
-# =====================
-# AI FUNCTION
-# =====================
 def ask_flower_ai(user_message):
     user_lower = user_message.lower()
     print(f"\n🤔 Вопрос: {user_message}")
     
-    # Приветствия
     if any(word in user_lower for word in ['привет', 'здравствуйте', 'добрый день', 'как дела']):
-        return "Здравствуйте! Чем могу помочь? 🌸"
+        return random.choice(GREETINGS)
     
     if 'кто ты' in user_lower:
         return "Я — Flora AI. Помогаю с цветами, растениями и подарками 🌸"
     
-    # Поиск в TurboQuant-DB
-    try:
-        results = db.search(user_message, top_k=1)
-        if results and results[0]['score'] > 0.6:
-            print(f"📖 Найден ответ с уверенностью: {results[0]['score']:.3f}")
-            return results[0]['metadata']['answer']
-        else:
-            print(f"ℹ️ Уверенность слишком низкая ({results[0]['score']:.3f} если есть)")
-    except Exception as e:
-        print(f"⚠️ Ошибка в БД: {e}")
+    # Поиск в базе знаний
+    for question, answer in KNOWLEDGE_BASE.items():
+        if question in user_lower:
+            return answer
     
-    # Если не нашли — Groq
+    # Поиск по ключевым словам
+    user_words = set(user_lower.split())
+    best_match = None
+    best_score = 0
+    
+    for question, answer in KNOWLEDGE_BASE.items():
+        q_words = set(question.split())
+        common = user_words & q_words
+        score = len(common) / len(q_words) if q_words else 0
+        if score > best_score:
+            best_score = score
+            best_match = answer
+    
+    if best_match and best_score > 0.3:
+        return best_match
+    
+    # Groq
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "system", "content": "Ты универсальный помощник. Отвечай кратко, 1-2 предложения."},
+                {"role": "system", "content": "Ты помощник. Отвечай кратко, 1-2 предложения."},
                 {"role": "user", "content": user_message}
             ],
             temperature=0.5,

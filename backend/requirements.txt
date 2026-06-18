@@ -5,5 +5,3 @@ openai
 python-dotenv
 gunicorn
 requests
-sentence-transformers
-turboquant-db
