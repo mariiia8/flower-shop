@@ -23,6 +23,10 @@
         </nav>
 
         <div class="header-actions">
+            <!-- 👤 КНОПКА АВТОРИЗАЦИИ -->
+            <div class="auth-icon" id="auth-btn">
+                🔐 Войти
+            </div>
             <div class="favorites-icon" id="favorites-btn">
                 ♡ <span id="favorites-count">0</span>
             </div>
@@ -41,6 +45,26 @@
         <div class="loader">Загрузка...</div>
     </div>
 
+</div>
+
+<!-- ================= AUTH MODAL ================= -->
+<div id="auth-modal" class="auth-modal">
+    <div class="auth-box">
+        <button class="close-auth">✕</button>
+        <h2 id="auth-title">🔐 Вход</h2>
+        
+        <div id="auth-form">
+            <input type="text" id="auth-username" placeholder="Имя пользователя" required>
+            <input type="email" id="auth-email" placeholder="Email (для регистрации)" style="display: none;">
+            <input type="password" id="auth-password" placeholder="Пароль" required>
+            <button id="auth-submit">Войти</button>
+            <p id="auth-toggle-text">
+                Нет аккаунта? <span id="auth-toggle-link">Зарегистрироваться</span>
+            </p>
+        </div>
+        
+        <div id="auth-status"></div>
+    </div>
 </div>
 
 <!-- ================= CART ================= -->

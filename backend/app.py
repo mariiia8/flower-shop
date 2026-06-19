@@ -1,28 +1,32 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from .models import db, Flower, Order, Favorite
+from models import db, Flower, Order, Favorite
 import json
 import os
 import sys
 
-app = Flask(__name__)
-CORS(app)
+# Добавляем путь к папке backend
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5500", "*"])
+
+app.config['SECRET_KEY'] = 'supersecretkey123'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
 # =========================
-# 🌸 AI CHAT (с обработкой ошибки)
+# 🌸 AI CHAT
 # =========================
 try:
-    from .ai import ask_flower_ai
+    from ai import ask_flower_ai  # ← Убрали точку
     AI_AVAILABLE = True
     print("✅ AI модуль загружен")
-except ImportError:
+except ImportError as e:
     AI_AVAILABLE = False
-    print("⚠️ AI модуль не найден, AI-чат будет недоступен")
+    print(f"⚠️ AI модуль не найден: {e}")
     
     def ask_flower_ai(message):
         return "🌸 AI помощник временно недоступен. Пожалуйста, попробуйте позже."
@@ -317,4 +321,4 @@ def serve_static(path):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)
