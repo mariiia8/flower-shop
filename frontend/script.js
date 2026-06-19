@@ -534,35 +534,10 @@ function validateCard() {
     return true;
 }
 
-// ===== ВАЛИДАЦИЯ ИМЕНИ И ТЕЛЕФОНА =====
-function validateCustomerInfo() {
-    const name = document.getElementById('customer-name')?.value.trim();
-    const phone = document.getElementById('customer-phone')?.value.trim();
-    
-    if (!name || name.length < 2) {
-        alert('👤 Введите имя (минимум 2 символа)');
-        document.getElementById('customer-name')?.focus();
-        return false;
-    }
-    
-    if (!phone || phone.length < 10) {
-        alert('📱 Введите корректный номер телефона');
-        document.getElementById('customer-phone')?.focus();
-        return false;
-    }
-    
-    return true;
-}
-
-// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА =====
+// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА (БЕЗ ВАЛИДАЦИИ) =====
 document.getElementById("checkout-btn")?.addEventListener("click", () => {
     if (!cart.length) {
         alert('Корзина пуста 🌸');
-        return;
-    }
-    
-    // Валидация имени и телефона перед открытием оплаты
-    if (!validateCustomerInfo()) {
         return;
     }
     
@@ -627,12 +602,12 @@ document.addEventListener("keydown", (e) => {
 // ===== КНОПКА "ОПЛАТИТЬ" С ВАЛИДАЦИЕЙ =====
 if (payBtn) {
     payBtn.addEventListener("click", () => {
-        // Проверяем адрес
+        // 1. Проверяем адрес
         if (!validateAddress()) {
             return;
         }
         
-        // Проверяем карту (если выбран способ "Карта")
+        // 2. Проверяем карту (если выбран способ "Карта")
         const activeMethod = document.querySelector('.pay-method.active');
         if (activeMethod && activeMethod.dataset.method === 'card') {
             if (!validateCard()) {
@@ -640,7 +615,7 @@ if (payBtn) {
             }
         }
         
-        // Если всё ок — сохраняем адрес и запускаем оплату
+        // 3. Если всё ок — сохраняем адрес и запускаем оплату
         const addressData = {
             city: deliveryCity?.value.trim() || 'Не указан',
             street: deliveryStreet?.value.trim() || 'Не указана',

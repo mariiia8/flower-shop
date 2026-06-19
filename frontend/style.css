@@ -1929,31 +1929,6 @@ nav {
         font-size: 13px !important;
         border-radius: 10px !important;
     }
-    
-    /* Кнопка авторизации */
-    .auth-icon {
-        font-size: 14px !important;
-    }
-    
-    /* Модалка авторизации */
-    .auth-box {
-        padding: 24px !important;
-        border-radius: 20px !important;
-    }
-    
-    .auth-box h2 {
-        font-size: 20px !important;
-    }
-    
-    .auth-box input {
-        padding: 12px !important;
-        font-size: 13px !important;
-    }
-    
-    .auth-box button#auth-submit {
-        padding: 12px !important;
-        font-size: 15px !important;
-    }
 }
 
 /* Маленькие телефоны (до 480px) */
