@@ -629,12 +629,49 @@ function updatePayAmount() {
     if (amountSpan) amountSpan.textContent = `${total} ₽`;
 }
 
-// ===================== ВАЛИДАЦИЯ КАРТЫ =====================
+// ===================== ВАЛИДАЦИЯ КАРТЫ (ИСПРАВЛЕННАЯ) =====================
+function showCardError(message) {
+    let errorDiv = document.getElementById('card-error-message');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'card-error-message';
+        errorDiv.style.cssText = `
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #fff5f5;
+            border-radius: 8px;
+            border-left: 3px solid #d32f2f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        const cardInputs = document.querySelector('.card-inputs');
+        if (cardInputs) cardInputs.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'flex';
+}
+
+function hideCardError() {
+    const errorDiv = document.getElementById('card-error-message');
+    if (errorDiv) errorDiv.style.display = 'none';
+}
+
 function validateCard() {
     const cardNumber = document.getElementById('card-number')?.value.replace(/\s/g, '');
     const cardExpiry = document.getElementById('card-expiry')?.value;
     const cardCVV = document.getElementById('card-cvv')?.value;
     const cardName = document.getElementById('card-name')?.value.trim();
+    
+    // Сбрасываем все ошибки перед проверкой
+    document.querySelectorAll('.card-inputs input').forEach(input => {
+        input.style.borderColor = '#ddd';
+        input.style.background = 'white';
+        input.style.boxShadow = 'none';
+    });
+    hideCardError();
     
     // Номер карты (16 цифр)
     if (!cardNumber || cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
@@ -645,11 +682,12 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('💳 Введите корректный номер карты (16 цифр)');
         return false;
     }
     
-    // Срок действия (ММ/ГГ)
-    if (!cardExpiry || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+    // Срок действия (ММ/ГГ) - проверяем формат
+    if (!cardExpiry || cardExpiry.length !== 5 || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
         const input = document.getElementById('card-expiry');
         if (input) {
             input.style.borderColor = '#d32f2f';
@@ -657,11 +695,15 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('📅 Введите срок действия в формате ММ/ГГ (например: 12/25)');
         return false;
     }
     
     // Проверка месяца (01-12)
-    const month = parseInt(cardExpiry.split('/')[0]);
+    const parts = cardExpiry.split('/');
+    const month = parseInt(parts[0]);
+    const year = parseInt(parts[1]);
+    
     if (month < 1 || month > 12) {
         const input = document.getElementById('card-expiry');
         if (input) {
@@ -670,13 +712,15 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('📅 Укажите корректный месяц (01-12)');
         return false;
     }
     
     // Проверка года (не должен быть в прошлом)
-    const year = parseInt(cardExpiry.split('/')[1]);
     const currentYear = new Date().getFullYear() % 100;
-    if (year < currentYear) {
+    const currentMonth = new Date().getMonth() + 1;
+    
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
         const input = document.getElementById('card-expiry');
         if (input) {
             input.style.borderColor = '#d32f2f';
@@ -684,6 +728,7 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('📅 Срок действия карты истёк');
         return false;
     }
     
@@ -696,6 +741,7 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('🔐 Введите CVV код (3 цифры)');
         return false;
     }
     
@@ -708,11 +754,42 @@ function validateCard() {
             input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
             input.focus();
         }
+        showCardError('👤 Введите имя владельца карты');
         return false;
     }
     
     return true;
 }
+
+// ===== АВТОМАТИЧЕСКОЕ ДОБАВЛЕНИЕ "/" В ПОЛЕ СРОКА ДЕЙСТВИЯ =====
+document.getElementById('card-expiry')?.addEventListener('input', function(e) {
+    // Удаляем все не-цифры
+    let value = this.value.replace(/\D/g, '');
+    
+    // Если больше 4 цифр - обрезаем
+    if (value.length > 4) value = value.slice(0, 4);
+    
+    // Добавляем "/" после двух цифр
+    if (value.length >= 2) {
+        this.value = value.slice(0, 2) + '/' + value.slice(2);
+    } else {
+        this.value = value;
+    }
+    
+    // Сбрасываем ошибку при вводе
+    this.style.borderColor = '#ddd';
+    this.style.background = 'white';
+    this.style.boxShadow = 'none';
+    hideCardError();
+});
+
+// Сброс ошибки при фокусе на поле expiry
+document.getElementById('card-expiry')?.addEventListener('focus', function() {
+    this.style.borderColor = '#ddd';
+    this.style.background = 'white';
+    this.style.boxShadow = 'none';
+    hideCardError();
+});
 
 // ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА =====
 document.getElementById("checkout-btn")?.addEventListener("click", () => {
@@ -758,6 +835,7 @@ if (cardNumberInput) {
         e.target.style.borderColor = '#ddd';
         e.target.style.background = 'white';
         e.target.style.boxShadow = 'none';
+        hideCardError();
     });
 }
 
@@ -766,6 +844,7 @@ if (closePayment) {
         paymentModal.classList.remove("open");
         if (paymentStatus) paymentStatus.innerHTML = "";
         document.querySelector('.pay-method[data-method="card"]')?.click();
+        hideCardError();
     });
 }
 
@@ -774,6 +853,7 @@ if (paymentModal) {
         if (e.target === paymentModal) {
             paymentModal.classList.remove("open");
             if (paymentStatus) paymentStatus.innerHTML = "";
+            hideCardError();
         }
     });
 }
@@ -782,6 +862,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && paymentModal?.classList.contains("open")) {
         paymentModal.classList.remove("open");
         if (paymentStatus) paymentStatus.innerHTML = "";
+        hideCardError();
     }
 });
 
