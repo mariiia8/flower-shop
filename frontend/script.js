@@ -452,10 +452,117 @@ function updatePayAmount() {
     if (amountSpan) amountSpan.textContent = `${total} ₽`;
 }
 
-// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА (БЕЗ ПРОВЕРКИ АДРЕСА) =====
+// ===================== ВАЛИДАЦИЯ АДРЕСА =====================
+function validateAddress() {
+    const city = deliveryCity?.value.trim();
+    const street = deliveryStreet?.value.trim();
+    
+    if (!city || city.length < 2) {
+        alert('📍 Пожалуйста, укажите город (минимум 2 символа)');
+        deliveryCity?.focus();
+        return false;
+    }
+    
+    if (!street || street.length < 5) {
+        alert('📍 Пожалуйста, укажите улицу и дом (минимум 5 символов)');
+        deliveryStreet?.focus();
+        return false;
+    }
+    
+    // Проверка на недопустимые символы
+    const invalidChars = /[<>{}|\\^`]/;
+    if (invalidChars.test(city) || invalidChars.test(street)) {
+        alert('⚠️ Обнаружены недопустимые символы в адресе');
+        return false;
+    }
+    
+    return true;
+}
+
+// ===================== ВАЛИДАЦИЯ КАРТЫ =====================
+function validateCard() {
+    const cardNumber = document.getElementById('card-number')?.value.replace(/\s/g, '');
+    const cardExpiry = document.getElementById('card-expiry')?.value;
+    const cardCVV = document.getElementById('card-cvv')?.value;
+    const cardName = document.getElementById('card-name')?.value.trim();
+    
+    // Номер карты (16 цифр)
+    if (!cardNumber || cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+        alert('💳 Введите корректный номер карты (16 цифр)');
+        document.getElementById('card-number')?.focus();
+        return false;
+    }
+    
+    // Срок действия (ММ/ГГ)
+    if (!cardExpiry || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+        alert('📅 Введите срок действия в формате ММ/ГГ');
+        document.getElementById('card-expiry')?.focus();
+        return false;
+    }
+    
+    // Проверка месяца (01-12)
+    const month = parseInt(cardExpiry.split('/')[0]);
+    if (month < 1 || month > 12) {
+        alert('📅 Укажите корректный месяц (01-12)');
+        document.getElementById('card-expiry')?.focus();
+        return false;
+    }
+    
+    // Проверка года (не должен быть в прошлом)
+    const year = parseInt(cardExpiry.split('/')[1]);
+    const currentYear = new Date().getFullYear() % 100;
+    if (year < currentYear) {
+        alert('📅 Срок действия карты истёк');
+        document.getElementById('card-expiry')?.focus();
+        return false;
+    }
+    
+    // CVV (3 цифры)
+    if (!cardCVV || cardCVV.length !== 3 || !/^\d+$/.test(cardCVV)) {
+        alert('🔐 Введите CVV код (3 цифры)');
+        document.getElementById('card-cvv')?.focus();
+        return false;
+    }
+    
+    // Имя владельца
+    if (!cardName || cardName.length < 2) {
+        alert('👤 Введите имя владельца карты');
+        document.getElementById('card-name')?.focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// ===== ВАЛИДАЦИЯ ИМЕНИ И ТЕЛЕФОНА =====
+function validateCustomerInfo() {
+    const name = document.getElementById('customer-name')?.value.trim();
+    const phone = document.getElementById('customer-phone')?.value.trim();
+    
+    if (!name || name.length < 2) {
+        alert('👤 Введите имя (минимум 2 символа)');
+        document.getElementById('customer-name')?.focus();
+        return false;
+    }
+    
+    if (!phone || phone.length < 10) {
+        alert('📱 Введите корректный номер телефона');
+        document.getElementById('customer-phone')?.focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА =====
 document.getElementById("checkout-btn")?.addEventListener("click", () => {
     if (!cart.length) {
         alert('Корзина пуста 🌸');
+        return;
+    }
+    
+    // Валидация имени и телефона перед открытием оплаты
+    if (!validateCustomerInfo()) {
         return;
     }
     
@@ -517,9 +624,23 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+// ===== КНОПКА "ОПЛАТИТЬ" С ВАЛИДАЦИЕЙ =====
 if (payBtn) {
     payBtn.addEventListener("click", () => {
-        // Сохраняем адрес при нажатии "Оплатить"
+        // Проверяем адрес
+        if (!validateAddress()) {
+            return;
+        }
+        
+        // Проверяем карту (если выбран способ "Карта")
+        const activeMethod = document.querySelector('.pay-method.active');
+        if (activeMethod && activeMethod.dataset.method === 'card') {
+            if (!validateCard()) {
+                return;
+            }
+        }
+        
+        // Если всё ок — сохраняем адрес и запускаем оплату
         const addressData = {
             city: deliveryCity?.value.trim() || 'Не указан',
             street: deliveryStreet?.value.trim() || 'Не указана',

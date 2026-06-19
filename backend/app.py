@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from models import db, Flower, Order, Favorite
+from .models import db, Flower, Order, Favorite
 import json
 import os
 import sys
@@ -18,12 +18,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # =========================
-# 🌸 AI CHAT
+# AI CHAT
 # =========================
 try:
-    from ai import ask_flower_ai  # ← Убрали точку
+    from ai import ask_flower_ai
     AI_AVAILABLE = True
-    print("✅ AI модуль загружен")
+    print("AI модуль загружен")
 except ImportError as e:
     AI_AVAILABLE = False
     print(f"⚠️ AI модуль не найден: {e}")
@@ -38,22 +38,18 @@ def ai_chat():
     
     data = request.json
     message = data.get('message', '')
-
     reply = ask_flower_ai(message)
-
     return jsonify({'reply': reply})
 
 
 # =========================
-# 📦 СОЗДАНИЕ БАЗЫ + ДАННЫЕ
+# СОЗДАНИЕ БАЗЫ + ДАННЫЕ
 # =========================
 with app.app_context():
     db.create_all()
 
     if Flower.query.count() == 0:
-
         flowers_data = [
-
             # === БУКЕТЫ ===
             Flower(
                 name="Нежные пионы",
@@ -111,7 +107,6 @@ with app.app_context():
                 description="Солнечный букет подсолнухов",
                 image_url="https://i.pinimg.com/736x/46/66/12/4666125dbe2b2a3f7bb18bd667a41fc1.jpg"
             ),
-
             # === РАСТЕНИЯ ===
             Flower(
                 name="Монстера",
@@ -169,7 +164,6 @@ with app.app_context():
                 description="Лечебное растение",
                 image_url="https://i.pinimg.com/736x/ee/4e/dc/ee4edc3327ece61ebdab88f5b82b6174.jpg"
             ),
-
             # === ПОДАРКИ ===
             Flower(
                 name="Диффузор",
@@ -231,26 +225,22 @@ with app.app_context():
 
         db.session.add_all(flowers_data)
         db.session.commit()
-        print("✅ База заполнена товарами")
+        print("База заполнена товарами")
+
 
 # =========================
-# 🌸 API
+# API ЭНДПОИНТЫ
 # =========================
 
 @app.route('/api/flowers', methods=['GET'])
 def get_flowers():
     category = request.args.get('category')
-
     if category:
         flowers = Flower.query.filter_by(category=category).all()
     else:
         flowers = Flower.query.all()
-
     return jsonify([f.to_dict() for f in flowers])
 
-# =========================
-# ❤️ FAVORITES
-# =========================
 
 @app.route('/api/favorites', methods=['GET'])
 def get_favorites():
@@ -260,65 +250,61 @@ def get_favorites():
         for f in favorites
     ])
 
+
 @app.route('/api/favorites', methods=['POST'])
 def add_favorite():
     data = request.json
     flower_id = data.get('flower_id')
-
+    
     existing = Favorite.query.filter_by(flower_id=flower_id).first()
     if existing:
         return jsonify({'status': 'already_exists'})
-
-    db.session.add(Favorite(flower_id=flower_id))
+    
+    favorite = Favorite(flower_id=flower_id)
+    db.session.add(favorite)
     db.session.commit()
-
     return jsonify({'status': 'added'})
+
 
 @app.route('/api/favorites/<int:flower_id>', methods=['DELETE'])
 def remove_favorite(flower_id):
     fav = Favorite.query.filter_by(flower_id=flower_id).first()
-
     if fav:
         db.session.delete(fav)
         db.session.commit()
         return jsonify({'status': 'removed'})
-
     return jsonify({'status': 'not_found'}), 404
 
-# =========================
-# 🛒 ORDERS
-# =========================
 
 @app.route('/api/order', methods=['POST'])
 def create_order():
     data = request.json
-
     order = Order(
         customer_name=data.get('name', 'Guest'),
         customer_phone=data.get('phone', ''),
         total_amount=data.get('total', 0),
         items=json.dumps(data.get('cart', []))
     )
-
     db.session.add(order)
     db.session.commit()
-
     return jsonify({'status': 'ok', 'order_id': order.id})
 
-# =========================
-# 🌐 ФРОНТЕНД (СТАТИКА)
-# =========================
+
 
 @app.route('/')
 def serve_frontend():
     return send_from_directory('../frontend', 'index.html')
 
+
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('../frontend', path)
 
+
+# =========================
+#ЗАПУСК
 # =========================
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
