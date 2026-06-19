@@ -2031,3 +2031,7 @@ nav {
         transition-duration: 0.01ms !important;
     }
 }
+.input-error {
+  border: 2px solid red !important;
+  background-color: #fff0f0;
+}

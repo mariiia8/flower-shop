@@ -435,48 +435,198 @@ async function sendAI() {
 if (aiSend) aiSend.addEventListener("click", sendAI);
 if (aiInput) aiInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendAI(); });
 
+// ===================== ВАЛИДАЦИЯ АДРЕСА (ПОДСВЕТКА ПОЛЕЙ) =====================
+// Получение полей адреса
+const deliveryCity = document.getElementById("delivery-city");
+const deliveryStreet = document.getElementById("delivery-street");
+const deliveryComment = document.getElementById("delivery-comment");
+
+// Создаём элементы для сообщений об ошибках под полями
+function addErrorElements() {
+    const streetContainer = deliveryStreet?.parentElement;
+    if (streetContainer && !document.getElementById('street-error-msg')) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'street-error-msg';
+        errorDiv.style.cssText = `
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        `;
+        errorDiv.innerHTML = '⚠️ Пожалуйста, укажите улицу и дом (минимум 5 символов)';
+        streetContainer.appendChild(errorDiv);
+    }
+
+    const cityContainer = deliveryCity?.parentElement;
+    if (cityContainer && !document.getElementById('city-error-msg')) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'city-error-msg';
+        errorDiv.style.cssText = `
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        `;
+        errorDiv.innerHTML = '⚠️ Пожалуйста, укажите город (минимум 2 символа)';
+        cityContainer.appendChild(errorDiv);
+    }
+}
+
+// Валидация города
+function validateCity() {
+    const value = deliveryCity?.value.trim() || '';
+    const isValid = value.length >= 2;
+    const errorMsg = document.getElementById('city-error-msg');
+
+    // Сбрасываем стили
+    if (deliveryCity) {
+        deliveryCity.style.borderColor = '#ddd';
+        deliveryCity.style.background = 'white';
+        deliveryCity.style.boxShadow = 'none';
+    }
+    if (errorMsg) errorMsg.style.display = 'none';
+
+    if (value === '') return false;
+
+    if (isValid) {
+        if (deliveryCity) {
+            deliveryCity.style.borderColor = '#2e7d32';
+            deliveryCity.style.background = '#f0faf0';
+            deliveryCity.style.boxShadow = '0 0 0 4px rgba(46, 125, 50, 0.1)';
+        }
+        return true;
+    } else {
+        if (deliveryCity) {
+            deliveryCity.style.borderColor = '#d32f2f';
+            deliveryCity.style.background = '#fff5f5';
+            deliveryCity.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+        }
+        if (errorMsg) errorMsg.style.display = 'flex';
+        return false;
+    }
+}
+
+// Валидация улицы
+function validateStreet() {
+    const value = deliveryStreet?.value.trim() || '';
+    const isValid = value.length >= 5;
+    const errorMsg = document.getElementById('street-error-msg');
+
+    // Сбрасываем стили
+    if (deliveryStreet) {
+        deliveryStreet.style.borderColor = '#ddd';
+        deliveryStreet.style.background = 'white';
+        deliveryStreet.style.boxShadow = 'none';
+    }
+    if (errorMsg) errorMsg.style.display = 'none';
+
+    if (value === '') return false;
+
+    if (isValid) {
+        if (deliveryStreet) {
+            deliveryStreet.style.borderColor = '#2e7d32';
+            deliveryStreet.style.background = '#f0faf0';
+            deliveryStreet.style.boxShadow = '0 0 0 4px rgba(46, 125, 50, 0.1)';
+        }
+        return true;
+    } else {
+        if (deliveryStreet) {
+            deliveryStreet.style.borderColor = '#d32f2f';
+            deliveryStreet.style.background = '#fff5f5';
+            deliveryStreet.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+        }
+        if (errorMsg) errorMsg.style.display = 'flex';
+        return false;
+    }
+}
+
+// Валидация всех полей адреса
+function validateAddress() {
+    const isCityValid = validateCity();
+    const isStreetValid = validateStreet();
+    
+    // Проверка на недопустимые символы
+    const city = deliveryCity?.value.trim() || '';
+    const street = deliveryStreet?.value.trim() || '';
+    const invalidChars = /[<>{}|\\^`]/;
+    
+    if (invalidChars.test(city) || invalidChars.test(street)) {
+        if (deliveryStreet) {
+            deliveryStreet.style.borderColor = '#d32f2f';
+            deliveryStreet.style.background = '#fff5f5';
+            deliveryStreet.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+        }
+        const errorMsg = document.getElementById('street-error-msg');
+        if (errorMsg) {
+            errorMsg.style.display = 'flex';
+            errorMsg.innerHTML = '⚠️ Обнаружены недопустимые символы в адресе';
+        }
+        return false;
+    }
+    
+    // Анимация тряски при ошибке
+    if (!isCityValid || !isStreetValid) {
+        if (deliveryStreet && !isStreetValid) {
+            deliveryStreet.style.animation = 'shake 0.4s ease';
+            setTimeout(() => { if (deliveryStreet) deliveryStreet.style.animation = ''; }, 400);
+        }
+        if (deliveryCity && !isCityValid) {
+            deliveryCity.style.animation = 'shake 0.4s ease';
+            setTimeout(() => { if (deliveryCity) deliveryCity.style.animation = ''; }, 400);
+        }
+        return false;
+    }
+    
+    return true;
+}
+
+// Добавляем обработчики событий для полей адреса
+function initAddressValidation() {
+    addErrorElements();
+
+    if (deliveryCity) {
+        deliveryCity.addEventListener('input', validateCity);
+        deliveryCity.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.style.borderColor = '#ddd';
+                this.style.background = 'white';
+                this.style.boxShadow = 'none';
+                const errorMsg = document.getElementById('city-error-msg');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+    }
+
+    if (deliveryStreet) {
+        deliveryStreet.addEventListener('input', validateStreet);
+        deliveryStreet.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.style.borderColor = '#ddd';
+                this.style.background = 'white';
+                this.style.boxShadow = 'none';
+                const errorMsg = document.getElementById('street-error-msg');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+    }
+}
+
 // ===================== PAYMENT MODAL =====================
 const paymentModal = document.getElementById("payment-modal");
 const closePayment = document.querySelector(".close-payment");
 const payBtn = document.getElementById("pay-btn");
 const paymentStatus = document.getElementById("payment-status");
 
-// Получение полей адреса
-const deliveryCity = document.getElementById("delivery-city");
-const deliveryStreet = document.getElementById("delivery-street");
-const deliveryComment = document.getElementById("delivery-comment");
-
 function updatePayAmount() {
     const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
     const amountSpan = document.querySelector(".pay-amount");
     if (amountSpan) amountSpan.textContent = `${total} ₽`;
-}
-
-// ===================== ВАЛИДАЦИЯ АДРЕСА =====================
-function validateAddress() {
-    const city = deliveryCity?.value.trim();
-    const street = deliveryStreet?.value.trim();
-    
-    if (!city || city.length < 2) {
-        alert('📍 Пожалуйста, укажите город (минимум 2 символа)');
-        deliveryCity?.focus();
-        return false;
-    }
-    
-    if (!street || street.length < 5) {
-        alert('📍 Пожалуйста, укажите улицу и дом (минимум 5 символов)');
-        deliveryStreet?.focus();
-        return false;
-    }
-    
-    // Проверка на недопустимые символы
-    const invalidChars = /[<>{}|\\^`]/;
-    if (invalidChars.test(city) || invalidChars.test(street)) {
-        alert('⚠️ Обнаружены недопустимые символы в адресе');
-        return false;
-    }
-    
-    return true;
 }
 
 // ===================== ВАЛИДАЦИЯ КАРТЫ =====================
@@ -488,23 +638,38 @@ function validateCard() {
     
     // Номер карты (16 цифр)
     if (!cardNumber || cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
-        alert('💳 Введите корректный номер карты (16 цифр)');
-        document.getElementById('card-number')?.focus();
+        const input = document.getElementById('card-number');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
     // Срок действия (ММ/ГГ)
     if (!cardExpiry || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
-        alert('📅 Введите срок действия в формате ММ/ГГ');
-        document.getElementById('card-expiry')?.focus();
+        const input = document.getElementById('card-expiry');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
     // Проверка месяца (01-12)
     const month = parseInt(cardExpiry.split('/')[0]);
     if (month < 1 || month > 12) {
-        alert('📅 Укажите корректный месяц (01-12)');
-        document.getElementById('card-expiry')?.focus();
+        const input = document.getElementById('card-expiry');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
@@ -512,29 +677,44 @@ function validateCard() {
     const year = parseInt(cardExpiry.split('/')[1]);
     const currentYear = new Date().getFullYear() % 100;
     if (year < currentYear) {
-        alert('📅 Срок действия карты истёк');
-        document.getElementById('card-expiry')?.focus();
+        const input = document.getElementById('card-expiry');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
     // CVV (3 цифры)
     if (!cardCVV || cardCVV.length !== 3 || !/^\d+$/.test(cardCVV)) {
-        alert('🔐 Введите CVV код (3 цифры)');
-        document.getElementById('card-cvv')?.focus();
+        const input = document.getElementById('card-cvv');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
     // Имя владельца
     if (!cardName || cardName.length < 2) {
-        alert('👤 Введите имя владельца карты');
-        document.getElementById('card-name')?.focus();
+        const input = document.getElementById('card-name');
+        if (input) {
+            input.style.borderColor = '#d32f2f';
+            input.style.background = '#fff5f5';
+            input.style.boxShadow = '0 0 0 4px rgba(211, 47, 47, 0.1)';
+            input.focus();
+        }
         return false;
     }
     
     return true;
 }
 
-// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА (БЕЗ ВАЛИДАЦИИ) =====
+// ===== КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА =====
 document.getElementById("checkout-btn")?.addEventListener("click", () => {
     if (!cart.length) {
         alert('Корзина пуста 🌸');
@@ -543,6 +723,8 @@ document.getElementById("checkout-btn")?.addEventListener("click", () => {
     
     updatePayAmount();
     paymentModal.classList.add("open");
+    // Инициализируем валидацию адреса при открытии модалки
+    setTimeout(initAddressValidation, 100);
 });
 
 document.querySelectorAll(".pay-method").forEach(btn => {
@@ -572,6 +754,10 @@ if (cardNumberInput) {
         if (displayCard) {
             displayCard.textContent = value.length ? "**** **** **** " + value.slice(-4) : "**** **** **** ****";
         }
+        // Сбрасываем ошибку при вводе
+        e.target.style.borderColor = '#ddd';
+        e.target.style.background = 'white';
+        e.target.style.boxShadow = 'none';
     });
 }
 
@@ -604,6 +790,12 @@ if (payBtn) {
     payBtn.addEventListener("click", () => {
         // 1. Проверяем адрес
         if (!validateAddress()) {
+            // Скролл к первому невалидному полю
+            const firstInvalid = document.querySelector('#delivery-city.error, #delivery-street.error');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
             return;
         }
         
@@ -630,7 +822,6 @@ if (payBtn) {
 
 // ===================== DELIVERY SIMULATION =====================
 function startFakeDelivery() {
-    // Получаем адрес из localStorage
     const addressData = JSON.parse(localStorage.getItem('deliveryAddress') || '{}');
     const addressText = `${addressData.city || ''}, ${addressData.street || ''}`.trim() || 'ваш адрес';
     const commentText = addressData.comment ? ` (${addressData.comment})` : '';
@@ -748,6 +939,11 @@ extraStyles.textContent = `
     @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes cartBump { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
     @keyframes counterPop { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #ff5f8f; } 100% { transform: scale(1); } }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
     
     .cart-icon-bump { animation: cartBump 0.4s ease; }
     .cart-counter.increment { animation: counterPop 0.3s ease; }
@@ -789,6 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadData();
     updateCartUI();
+    initAddressValidation();
 });
 
 // ===================== МОБИЛЬНОЕ МЕНЮ =====================
